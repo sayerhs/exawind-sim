@@ -1,0 +1,3 @@
+add_nalu_wind_module(nalu_wind)
+add_nalu_wind_module(realm)
+add_nalu_wind_module(time_integrator)
