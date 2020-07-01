@@ -59,6 +59,11 @@ cdef class TiogaAPI:
         """Call to native perform connectivity routine"""
         self.tg.performConnectivityAMR()
 
+    def data_update(self, int num_comp, bint row_major=True):
+        """Perform solution interpolation"""
+        cdef int interptype = 0 if row_major else 1
+        self.tg.dataUpdate(num_comp, interptype)
+
 tioga_instance = TiogaAPI()
 
 def get_instance():

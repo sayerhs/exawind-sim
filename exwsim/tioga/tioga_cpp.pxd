@@ -20,7 +20,8 @@ cdef extern from "tioga.h" namespace "TIOGA" nogil:
         void profile()
         void performConnectivity()
         void performConnectivityAMR()
-        void dataUpdate(int nvar, int interptype, int at_points=0)
+        void dataUpdate(int nvar, int interptype, int at_points)
+        void dataUpdate(int nvar, int interptype)
         void dataUpdate_AMR(int nvar, int interptype)
 
         void registerGridData(
