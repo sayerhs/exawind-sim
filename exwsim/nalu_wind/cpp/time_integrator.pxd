@@ -4,8 +4,10 @@
 
 from libcpp cimport bool
 from libcpp.vector cimport vector
+from libcpp.memory cimport unique_ptr
 from .yaml_cpp cimport Node as YNode
 from .realm cimport Realm
+from .ext_overset cimport ExtOverset
 
 cdef extern from "TimeIntegrator.h" namespace "sierra::nalu":
     cdef cppclass TimeIntegrator:
@@ -13,10 +15,10 @@ cdef extern from "TimeIntegrator.h" namespace "sierra::nalu":
         void breadboard()
         void initialize()
         void integrate_realm()
-        void prepare_for_timestep()
-        void pre_advance_timestep_stage1()
-        void pre_advance_timestep_stage2()
-        void post_advance_timestep()
+        void prepare_for_time_integration()
+        void pre_realm_advance_stage1()
+        void pre_realm_advance_stage2()
+        void post_realm_advance()
         bool simulation_proceeds()
 
         double get_time_step()
@@ -32,3 +34,4 @@ cdef extern from "TimeIntegrator.h" namespace "sierra::nalu":
         void compute_gamma()
 
         vector[Realm*] realmVec_
+        unique_ptr[ExtOverset] overset_

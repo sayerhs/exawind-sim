@@ -12,6 +12,8 @@ cdef extern from "Simulation.h" namespace "sierra::nalu":
         void load(const YNode&)
         void breadboard()
         void initialize()
+        void init_prolog()
+        void init_epilog()
         void run()
 
         TimeIntegrator* timeIntegrator_
