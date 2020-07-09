@@ -23,7 +23,12 @@ cdef extern from "AMReX_DistributionMapping.H" namespace "amrex" nogil:
     cdef cppclass DistributionMapping
 
 cdef extern from "AMReX_FabArrayBase.H" namespace "amrex" nogil:
-    cdef cppclass FabArrayBase
+    cdef cppclass FabArrayBase:
+        pass
+
+cdef extern from "AMReX_FabArray.H" namespace "amrex" nogil:
+    cdef cppclass FabArray[FAB](FabArrayBase):
+        pass
 
 cdef extern from "AMReX_FArrayBox.H" namespace "amrex" nogil:
     cdef cppclass FArrayBox:
@@ -49,7 +54,7 @@ cdef extern from "AMReX_MFIter.H" namespace "amrex" nogil:
     cdef cppclass MFIter
 
 cdef extern from "AMReX_MultiFab.H" namespace "amrex":
-    cdef cppclass MultiFab:
+    cdef cppclass MultiFab(FabArray[FArrayBox]):
         ctypedef FArrayBox FAB
 
         ### From FabArrayBase

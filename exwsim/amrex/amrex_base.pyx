@@ -509,7 +509,7 @@ cdef class MultiFab:
         self.mfab.plus(val, comp, ncomp)
 
     def mult(MultiFab self, crx.Real val, int comp, int ncomp):
-        """x[:, comp:comp+ncomp] *= val"""
+        """``x[:, comp:comp+ncomp] *= val``"""
         self.mfab.mult(val, comp, ncomp)
 
     def invert(MultiFab self, crx.Real val, int comp, int ncomp):
@@ -548,7 +548,7 @@ cdef class MultiFab:
 
     def multiply(MultiFab self, MultiFab src,
                  int scomp=0, int dcomp=0, int ncomp=1, int nghost=0):
-        """dst[:, dcomp:dcomp+ncomp] *= src[:, scomp:scomp+ncomp]"""
+        """``dst[:, dcomp:dcomp+ncomp] *= src[:, scomp:scomp+ncomp]``"""
         crx.MultiFab.Multiply(
             deref(self.mfab), deref(src.mfab),
             scomp, dcomp, ncomp, nghost)
@@ -562,7 +562,7 @@ cdef class MultiFab:
 
     def saxpy(MultiFab self, crx.Real aval, MultiFab src,
                int scomp=0, int dcomp=0, int ncomp=1, int nghost=0):
-        """dst[:, dcomp:dcomp+ncomp] += aval *src[:, scomp:scomp+ncomp]"""
+        """dst[:, dcomp:dcomp+ncomp] += aval * src[:, scomp:scomp+ncomp]"""
         crx.MultiFab.Saxpy(
             deref(self.mfab), aval, deref(src.mfab),
             scomp, dcomp, ncomp, nghost)
