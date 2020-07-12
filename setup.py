@@ -27,6 +27,7 @@ classifiers = [
 dependencies = [
     "tioga",
     "trilinos",
+    "amrex",
     "nalu-wind",
     "amr-wind",
     "openfast",

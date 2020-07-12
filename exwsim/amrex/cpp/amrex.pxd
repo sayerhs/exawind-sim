@@ -4,6 +4,8 @@
 
 from libcpp cimport bool
 from libcpp.vector cimport vector
+from libcpp.string cimport string
+from mpi4py cimport libmpi as mpi
 
 cdef extern from "AMReX.H" namespace "amrex":
     cdef cppclass AMReX:
@@ -18,7 +20,8 @@ cdef extern from "AMReX.H" namespace "amrex":
         @staticmethod
         AMReX* top()
 
-    AMReX* Initialize(int& argc, char**& argv, bint)
+    AMReX* Initialize(int& argc, char**& argv, bint, mpi.MPI_Comm)
+    void Finalize()
 
 include "numeric.pxi"
 include "array4.pxi"
@@ -37,3 +40,4 @@ include "imultifab.pxi"
 include "mfiter.pxi"
 include "boxarray.pxi"
 include "distributionmapping.pxi"
+include "parm_parse.pxi"

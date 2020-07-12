@@ -83,3 +83,6 @@ cdef class Array4Int:
 
     @staticmethod
     cdef wrap_instance(crx.Array4[int] arr)
+
+cdef class ParmParse:
+    cdef crx.ParmParse* pp

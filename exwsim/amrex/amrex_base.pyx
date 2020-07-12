@@ -4,18 +4,57 @@
 
 from cython.operator cimport dereference as deref, preincrement as pinc
 from libcpp.memory cimport unique_ptr
+from libcpp.string cimport string
+from libcpp.vector cimport vector
 cimport numpy as np
 import numpy as np
+from mpi4py cimport MPI
+from mpi4py import MPI
+from mpi4py cimport libmpi as mpi
+from ..utils cimport cli_args
+import atexit
 
 cdef class AMReX:
     """AMReX function wrappers"""
 
     @staticmethod
-    def initialize():
-        """Initialize amrex"""
+    def initialize(str inp_file = None,
+                   list args=None,
+                   MPI.Comm comm=MPI.COMM_WORLD,
+                   str exe_name="python_driver"):
+        """Initialize AMReX library
+
+        Args:
+            inp_file (str): AMReX input file to be parsed
+            args (list): A list of "command line arguments" to be passed to ParmParse
+            comm: The MPI communicator instance
+            exe_name (str): The executable name that AMReX should use as ``argv[0]``
+        """
+        cdef list default_args = [
+            "amrex.throw_exception=1",
+            "amrex.signal_handling=0",
+            "amrex.v=0",
+            "amrex.verbose=0",
+        ]
         cdef int argc = 0
         cdef char** argv = NULL
-        crx.Initialize(argc, argv, False)
+        cdef mpi.MPI_Comm comm_obj = comm.ob_mpi
+        cdef list pyargs = (
+            [exe_name] +
+            ([inp_file] if inp_file else []) +
+            default_args +
+            (args or []))
+        cdef cli_args.CLIArgs ccargs = cli_args.CLIArgs(pyargs)
+        argc = ccargs.argc()
+        argv = ccargs.argv()
+        crx.Initialize(argc, argv, True, comm_obj)
+        atexit.register(AMReX.finalize)
+
+    @staticmethod
+    def finalize():
+        """Call AMReX finalize on exit"""
+        if not crx.AMReX.empty():
+            crx.Finalize()
 
 cdef class Box:
     """Rectangular domain on an Integer Lattice
@@ -803,3 +842,96 @@ cdef class Array4Int:
     @property
     def num_comp(Array4Int self):
         return self.arr.nComp()
+
+cdef class ParmParse:
+    """Wrapper for AMReX parameter parser"""
+
+    def __cinit__(ParmParse self, str prefix=""):
+        """
+        Args:
+            prefix (str): Namespace prefix
+        """
+        cdef string cprefix = prefix.encode('UTF-8')
+        self.pp = new crx.ParmParse(cprefix)
+
+    def __dealloc__(ParmParse self):
+        del self.pp
+
+    def get_impl(ParmParse self, str key, func):
+        """
+        Args:
+            key (str): Keyword to lookup
+            func: Conversion function
+        """
+        cdef vector[string] values
+        cdef string val
+        cdef string ckey = key.encode('UTF-8')
+        cdef int nvals = self.pp.countval(ckey.c_str())
+
+        if nvals > 1:
+            self.pp.getarr(ckey.c_str(), values)
+            return [func(ff.decode('UTF-8')) for ff in values]
+        else:
+            self.pp.get(ckey.c_str(), val)
+            return func(val.decode('UTF-8'))
+
+    def get(ParmParse self, str key):
+        """Return value as string"""
+        return self.get_impl(key, lambda x: x)
+
+    def get_real(ParmParse self, str key):
+        """Return value as string"""
+        return self.get_impl(key, float)
+
+    def get_int(ParmParse self, str key):
+        """Return value as string"""
+        return self.get_impl(key, int)
+
+    def query(ParmParse self, str key):
+        """Return if a value exists in the input file else None
+
+        Args:
+            key (str): Keyword to lookup
+        """
+        cdef string ckey = key.encode('UTF-8')
+        cdef bint exists = self.pp.contains(ckey.c_str())
+
+        return self.get(key) if exists else None
+
+    def query_real(ParmParse self, str key):
+        """Return if a value exists in the input file else None
+
+        Args:
+            key (str): Keyword to lookup
+        """
+        cdef string ckey = key.encode('UTF-8')
+        cdef bint exists = self.pp.contains(ckey.c_str())
+
+        return self.get_real(key) if exists else None
+
+    def query_int(ParmParse self, str key):
+        """Return if a value exists in the input file else None
+
+        Args:
+            key (str): Keyword to lookup
+        """
+        cdef string ckey = key.encode('UTF-8')
+        cdef bint exists = self.pp.contains(ckey.c_str())
+
+        return self.get_int(key) if exists else None
+
+    def add_arr(ParmParse self, str key, list values):
+        """Add to ParmParse lookup table"""
+        cdef string ckey = key.encode('UTF-8')
+        cdef vector[string] cvals
+        cvals.reserve(len(values))
+
+        for vv in values:
+            cvals.push_back(("%s"%vv).encode('UTF-8'))
+        self.pp.addarr(ckey.c_str(), cvals)
+
+    def add(ParmParse self, str key, val):
+        """Add a value"""
+        cdef string ckey = key.encode('UTF-8')
+        cdef string cval = ("%s"%val).encode('UTF-8')
+        self.pp.add(ckey.c_str(), cval.c_str())
