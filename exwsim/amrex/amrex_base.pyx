@@ -934,4 +934,4 @@ cdef class ParmParse:
         """Add a value"""
         cdef string ckey = key.encode('UTF-8')
         cdef string cval = ("%s"%val).encode('UTF-8')
-        self.pp.add(ckey.c_str(), cval.c_str())
+        self.pp.add(ckey.c_str(), cval)
