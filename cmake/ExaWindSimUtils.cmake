@@ -3,7 +3,7 @@ function(add_exwsim_module modname)
   add_library(${modname} MODULE ${modname})
   target_compile_features(${modname} PRIVATE cxx_std_11)
   target_compile_options(${modname} PRIVATE
-    $<$<CXX_COMPILER_ID:AppleClang,Clang>:-Wno-deprecated-declarations>
+    $<$<CXX_COMPILER_ID:AppleClang,Clang>:-Wno-deprecated-declarations;-Wno-pass-failed;-Wno-c++17-extensions>
     )
   set_target_properties(${modname} PROPERTIES CXX_EXTENSIONS OFF)
 
@@ -35,4 +35,9 @@ endfunction()
 function(add_amrex_module modname)
   add_exwsim_module(${modname})
   target_link_libraries(${modname} AMReX::amrex)
+endfunction()
+
+function(add_amr_wind_module modname)
+  add_exwsim_module(${modname})
+  target_link_libraries(${modname} AMR-Wind::amrwind_api AMReX::amrex)
 endfunction()

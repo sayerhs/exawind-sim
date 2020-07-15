@@ -1,0 +1,1 @@
+add_amr_wind_module(amr_wind_py)
