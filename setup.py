@@ -30,7 +30,6 @@ dependencies = [
     "amrex",
     "nalu-wind",
     "amr-wind",
-    "openfast",
 ]
 
 def cmake_prefix_path():
@@ -54,7 +53,12 @@ def cmake_prefix_path():
         else:
             print("Cannot find package: %s"%dep)
 
-    return "-DCMAKE_PREFIX_PATH=" + ";".join(paths) if paths else ""
+    return "-DCMAKE_PREFIX_PATH=" + ";".join(paths) if paths else None
+
+cmake_args = []
+prefix_path = cmake_prefix_path()
+if prefix_path is not None:
+    cmake_args = [ prefix_path ]
 
 setup(
     name="exawind-sim",
@@ -71,7 +75,5 @@ setup(
     packages=[
         'exwsim',
     ],
-    cmake_args = [
-        cmake_prefix_path(),
-    ]
+    cmake_args = cmake_args,
 )
