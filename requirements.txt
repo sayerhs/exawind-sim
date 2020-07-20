@@ -1,0 +1,7 @@
+--no-binary mpi4py
+numpy
+cython>=0.25.1
+mpi4py
+scikit-build
+pytest
+Sphinx
