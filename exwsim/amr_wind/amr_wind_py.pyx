@@ -25,6 +25,8 @@ cpdef enum FieldLoc:
 
 cdef class AMRWind:
     """AMR-Wind interface
+
+    This class represents the entrypoint from Python to excute the AMR-Wind solver.
     """
 
     def __cinit__(AMRWind self):
@@ -39,10 +41,12 @@ cdef class AMRWind:
 
     @property
     def sim(AMRWind self):
+        """Return the CFDSim instance associated with the solver"""
         return CFDSim.wrap_instance(&(self.obj.sim()))
 
     @property
     def repo(AMRWind self):
+        """Return the FieldRepository instance associated with the solver"""
         return FieldRepo.wrap_instance(&(self.obj.repo()))
 
 
