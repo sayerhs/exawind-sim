@@ -4,8 +4,8 @@
 
 from libcpp.string cimport string
 from libcpp.memory cimport unique_ptr
-from ...amrex.cpp cimport amrex as crx
-from ...amrex.cpp_core.amr_mesh cimport AmrCore
+from amrex.cpp cimport amrex as crx
+from amrex.cpp_core.amr_mesh cimport AmrCore
 
 cdef extern from "amr-wind/core/FieldDescTypes.H" namespace "amr_wind::FieldState" nogil:
     cpdef enum FieldState "amr_wind::FieldState":

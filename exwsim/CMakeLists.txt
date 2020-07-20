@@ -1,5 +1,3 @@
-add_subdirectory(utils)
 add_subdirectory(tioga)
 add_subdirectory(nalu_wind)
-add_subdirectory(amrex)
 add_subdirectory(amr_wind)

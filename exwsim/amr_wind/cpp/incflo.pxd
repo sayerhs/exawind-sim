@@ -2,7 +2,7 @@
 # distutils: language = c++
 # cython: embedsignature = True
 
-from ...amrex.cpp_core.amr_mesh cimport AmrCore
+from amrex.cpp_core.amr_mesh cimport AmrCore
 from .cfd_sim cimport CFDSim
 from .field cimport FieldRepo
 

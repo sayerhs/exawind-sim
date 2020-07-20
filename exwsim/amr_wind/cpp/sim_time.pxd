@@ -2,7 +2,7 @@
 # distutils: language = c++
 # cython: embedsignature = True
 
-from ...amrex.cpp cimport amrex as crx
+from amrex.cpp cimport amrex as crx
 
 cdef extern from "amr-wind/core/SimTime.H" namespace "amr_wind" nogil:
     cdef cppclass SimTime:

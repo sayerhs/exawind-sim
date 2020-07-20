@@ -4,8 +4,8 @@
 
 from cython.operator cimport dereference as deref
 from libcpp.string cimport string
-from ..amrex.amrex_core cimport AmrCore
-from ..amrex.amrex_base cimport MultiFab
+from amrex.amrex_core cimport AmrCore
+from amrex.amrex_base cimport MultiFab
 
 cpdef enum FieldState:
     NP1 = <int>field.FieldState.NP1
