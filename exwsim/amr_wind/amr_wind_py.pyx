@@ -4,6 +4,7 @@
 
 from cython.operator cimport dereference as deref
 from libcpp.string cimport string
+from libcpp.cast cimport dynamic_cast
 from amrex.amrex_core cimport AmrCore
 from amrex.amrex_base cimport MultiFab
 
@@ -40,6 +41,10 @@ cdef class AMRWind:
         self.obj.InitData()
 
     @property
+    def incflo(AMRWind self):
+        return Incflo.wrap_instance(self.obj)
+
+    @property
     def sim(AMRWind self):
         """Return the CFDSim instance associated with the solver"""
         return CFDSim.wrap_instance(&(self.obj.sim()))
@@ -49,6 +54,19 @@ cdef class AMRWind:
         """Return the FieldRepository instance associated with the solver"""
         return FieldRepo.wrap_instance(&(self.obj.repo()))
 
+ctypedef incflo.incflo* _CppIncfloPtr
+
+cdef class Incflo(AmrCore):
+
+    cdef incflo.incflo* cls(Incflo self):
+        return dynamic_cast[_CppIncfloPtr](self.ptr)
+
+    @staticmethod
+    cdef Incflo wrap_instance(incflo.incflo* ptr, bint owner=False):
+        cdef Incflo self = Incflo.__new__(Incflo)
+        self.ptr = ptr
+        self.owner = False
+        return self
 
 cdef class CFDSim:
     """CFDSim wrapper"""

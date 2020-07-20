@@ -5,6 +5,7 @@
 from .cpp cimport incflo
 from .cpp cimport cfd_sim
 from .cpp cimport field
+from amrex.amrex_core cimport AmrCore
 
 cdef class AMRWind:
     cdef incflo.incflo* obj
@@ -15,6 +16,13 @@ cdef class CFDSim:
 
     @staticmethod
     cdef wrap_instance(cfd_sim.CFDSim* sim, bint owner=*)
+
+cdef class Incflo(AmrCore):
+
+    cdef incflo.incflo* cls(Incflo self)
+
+    @staticmethod
+    cdef Incflo wrap_instance(incflo.incflo* ptr, bint owner=*)
 
 cdef class Field:
     cdef field.Field* fld
