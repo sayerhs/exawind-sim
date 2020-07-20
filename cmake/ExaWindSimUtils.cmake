@@ -9,6 +9,7 @@ function(add_exwsim_module modname)
 
   target_include_directories(${modname} SYSTEM PRIVATE
     ${NumPy_INCLUDE_DIR}
+    ${MPI_CXX_INCLUDE_PATH}
     )
   target_link_libraries(${modname}
     ${MPI_CXX_LIBRARIES})
