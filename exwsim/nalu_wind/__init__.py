@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """\
-Nalu-Wind python wrapper
+Nalu-Wind interface
+--------------------
 """
 
 from .nalu_wind import kokkos_initialize, NaluWind

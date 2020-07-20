@@ -2,6 +2,11 @@
 # distutils: language = c++
 # cython: embedsignature = True
 
+"""\
+Nalu-Wind Interface
+-------------------
+"""
+
 from cython.operator cimport dereference as deref
 from libcpp.string cimport string
 from mpi4py cimport MPI
@@ -17,7 +22,16 @@ from pathlib import Path
 import atexit
 
 cpdef kokkos_initialize(int num_devices=-1):
-    """Initialize Kokkos"""
+    """Initialize Kokkos
+
+    This function must be invoked before any Nalu-Wind data structures are
+    accessed. This will automatically register a function that will call the
+    finalize action when the python script quits. So it is not necessary for
+    the user to explicitly call :func:`kokkos_finalize` in their scripts.
+
+    Args:
+        num_devices (int): Number of devices used per compute node
+    """
     if _kokkos.is_initialized():
         return
 
@@ -28,12 +42,28 @@ cpdef kokkos_initialize(int num_devices=-1):
     atexit.register(kokkos_finalize)
 
 cpdef kokkos_finalize():
-    """Finalize Kokkos"""
+    """Finalize Kokkos
+
+    This function is automatically registered by the initialize call to be
+    executed when Python interpreter exits. However, user can also call this
+    function manually to finalize Kokkos environment.
+    """
     if _kokkos.is_initialized():
         _kokkos.finalize()
 
 cdef class NaluWind:
-    """Wrapper for Nalu-Wind"""
+    """Interface to drive Nalu-Wind through Python
+
+    If ``log_file`` is not provided, then the base name YAML input file is used
+    with a ``.log`` extension for the log file.
+
+    Args:
+        comm: A valid MPI communicator instance
+        yaml_file (path): Path to the Nalu-Wind input file
+        tg (TIOGA): External TIOGA instance for use in multi-solver mode
+        log_file (path): Path to the redirect outputs
+        parallel_print (bool): If True, enables output from all MPI ranks
+    """
 
     def __cinit__(NaluWind self,
                   MPI.Comm comm,
@@ -63,7 +93,14 @@ cdef class NaluWind:
             del self.sim
 
     def initialize(NaluWind self):
-        """Initialize the solver"""
+        """Perform all the initialization steps before time integration.
+
+        This function should only be called in a standalone Nalu-Wind solution
+        mode. When using Nalu-Wind in multi-solver mode with another instance
+        of Nalu-Wind or another CFD solver, e.g., AMR-Wind, use
+        :meth:`init_prolog` and :meth:`init_epilog` instead to perform actions
+        before and after overset connectivity steps.
+        """
         self.sim.load(self.doc)
         self.sim.breadboard()
         self.sim.initialize()
@@ -80,7 +117,11 @@ cdef class NaluWind:
         self.sim.init_epilog()
 
     def run(NaluWind self):
-        """Run simulation"""
+        """Perform time-integration for prescribed number of timesteps in input file
+
+        Together with :meth:`initialize` this method represents the equivalent
+        of the C++ executable that can be executed within the Python script.
+        """
         self.sim.run()
 
     def prepare_for_time_integration(NaluWind self):
@@ -96,22 +137,31 @@ cdef class NaluWind:
         self.sim.timeIntegrator_.pre_realm_advance_stage2()
 
     def advance_timestep(NaluWind self):
+        """Advances all participating realms by one non-linear iteration"""
         for realm in self.sim.timeIntegrator_.realmVec_:
             realm.advance_time_step()
 
     def post_advance(NaluWind self):
+        """Perform actions after advancing a timestep
+
+        Examples include writing output and restart files to disk
+        """
         self.sim.timeIntegrator_.post_realm_advance()
 
     def pre_overset_conn_work(NaluWind self):
+        """Register the latest mesh data before performing overset connectivity"""
         deref(self.sim.timeIntegrator_.overset_).pre_overset_conn_work()
 
     def post_overset_conn_work(NaluWind self):
+        """Perform necessary updates within Nalu-Wind after overset connectivity step"""
         deref(self.sim.timeIntegrator_.overset_).post_overset_conn_work()
 
     def register_solution(NaluWind self):
+        """Register the latest solution fields with TIOGA for solution exchange"""
         return deref(self.sim.timeIntegrator_.overset_).register_solution()
 
     def update_solution(NaluWind self):
+        """Update Nalu-Wind solution fields after an overset solution exchange step"""
         deref(self.sim.timeIntegrator_.overset_).update_solution()
 
     # @property
