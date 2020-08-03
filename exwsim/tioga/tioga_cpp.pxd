@@ -22,7 +22,7 @@ cdef extern from "tioga.h" namespace "TIOGA" nogil:
         void performConnectivityAMR()
         void dataUpdate(int nvar, int interptype, int at_points)
         void dataUpdate(int nvar, int interptype)
-        void dataUpdate_AMR(int nvar, int interptype)
+        void dataUpdate_AMR()
 
         void registerGridData(
             int btag, int nnodes, double* xyz, int* ibl,
@@ -34,8 +34,8 @@ cdef extern from "tioga.h" namespace "TIOGA" nogil:
 
         void register_amr_global_data(int, int*, double*, int)
         void set_amr_patch_count(int)
-        void register_amr_local_data(int, int, int*)
-        void register_amr_solution(int, double*, bool)
+        void register_amr_local_data(int, int, int*, int*)
+        void register_amr_solution(int, double*, int, int)
 
         void getDonorCount(int btag, int* dcount, int* fcount)
         void getDonorInfo(int btag, int* receptors, int* indices,
