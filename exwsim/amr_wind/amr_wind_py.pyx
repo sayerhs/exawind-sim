@@ -7,6 +7,7 @@ from libcpp.string cimport string
 from libcpp.cast cimport dynamic_cast
 from amrex.amrex_core cimport AmrCore
 from amrex.amrex_base cimport MultiFab
+from ..tioga.tioga_api cimport TiogaAPI
 
 cpdef enum FieldState:
     NP1 = <int>field.FieldState.NP1
@@ -36,9 +37,29 @@ cdef class AMRWind:
     def __dealloc__(AMRWind self):
         del self.obj
 
-    def init(AMRWind self):
-        """Initialize the solver"""
-        self.obj.InitData()
+    # def init(AMRWind self):
+    #     """Initialize the solver"""
+    #     self.obj.InitData()
+
+    def init(AMRWind self, TiogaAPI tg = None):
+        """Initialize mesh"""
+        self.obj.init_mesh()
+        self.obj.init_amr_wind_modules()
+
+        if tg is not None:
+            self.obj.sim().activate_overset()
+            self.tgiface.reset(new amr_tioga_iface.AMRTiogaIface(
+                self.obj.sim(), deref(tg.tg)))
+
+    def register_mesh(AMRWind self):
+        """Register mesh for TIOGA connectivity"""
+        if not self.tgiface:
+            raise RuntimeError("Overset capability not activated in AMR-Wind")
+        deref(self.tgiface).register_mesh()
+
+    def prepare_for_time_integration(AMRWind self):
+        """Actions after overset connectivity has been established"""
+        self.obj.prepare_for_time_integration()
 
     @property
     def incflo(AMRWind self):
@@ -86,6 +107,18 @@ cdef class CFDSim:
         self.owner = owner
         return self
 
+    def create_turbulence_model(CFDSim self):
+        """Initialize the turbulence model instance"""
+        self.sim.create_turbulence_model()
+
+    def init_physics(CFDSim self):
+        """Initialize all available physics models"""
+        self.sim.init_physics()
+
+    def activate_overset(CFDSim self):
+        """Activate overset data structures"""
+        self.sim.activate_overset()
+
     @property
     def mesh(CFDSim self):
         return AmrCore.wrap_instance(&self.sim.mesh())
@@ -93,6 +126,10 @@ cdef class CFDSim:
     @property
     def repo(CFDSim self):
         return FieldRepo.wrap_instance(&self.sim.repo())
+
+    @property
+    def has_overset(CFDSim self):
+        return self.sim.has_overset()
 
 cdef class Field:
     """Field"""

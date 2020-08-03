@@ -40,5 +40,7 @@ endfunction()
 
 function(add_amr_wind_module modname)
   add_exwsim_module(${modname})
-  target_link_libraries(${modname} AMR-Wind::amrwind_api AMReX::amrex)
+  target_include_directories(${modname} SYSTEM PRIVATE
+    ${TIOGA_INCLUDE_DIRS})
+  target_link_libraries(${modname} AMR-Wind::amrwind_api AMReX::amrex tioga)
 endfunction()

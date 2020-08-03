@@ -15,5 +15,8 @@ cdef extern from "amr-wind/CFDSim.H" namespace "amr_wind" nogil:
         SimTime& time()
         FieldRepo& repo()
 
+        bint has_overset()
+
         void create_turbulence_model()
         void init_physics()
+        void activate_overset()

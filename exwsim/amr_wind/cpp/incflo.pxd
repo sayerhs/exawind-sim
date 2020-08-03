@@ -10,9 +10,14 @@ cdef extern from "amr-wind/incflo.H" nogil:
     cdef cppclass incflo(AmrCore):
         incflo()
 
+        void init_mesh()
+        void init_amr_wind_modules()
+        void prepare_for_time_integration()
+        void advance()
+        void post_advance_work()
+
         void InitData()
         void Evolve()
-        void Advance()
 
         void ComputeDt(bool)
         void ApplyPredictor(bool)

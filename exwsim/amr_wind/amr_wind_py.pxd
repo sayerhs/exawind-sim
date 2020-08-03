@@ -2,13 +2,16 @@
 # distutils: language = c++
 # cython: embedsignature = True
 
+from libcpp.memory cimport unique_ptr
 from .cpp cimport incflo
 from .cpp cimport cfd_sim
 from .cpp cimport field
+from . cimport amr_tioga_iface
 from amrex.amrex_core cimport AmrCore
 
 cdef class AMRWind:
     cdef incflo.incflo* obj
+    cdef unique_ptr[amr_tioga_iface.AMRTiogaIface] tgiface
 
 cdef class CFDSim:
     cdef cfd_sim.CFDSim* sim
