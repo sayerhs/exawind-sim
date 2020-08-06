@@ -18,6 +18,10 @@ class AMRTiogaIface
 public:
     AMRTiogaIface(amr_wind::CFDSim&, TIOGA::tioga& tg);
 
+    void pre_overset_conn_work();
+
+    void post_overset_conn_work();
+
     void register_mesh();
 
 private:

@@ -31,31 +31,35 @@ cdef class AMRWind:
     This class represents the entrypoint from Python to excute the AMR-Wind solver.
     """
 
-    def __cinit__(AMRWind self):
+    def __cinit__(AMRWind self, TiogaAPI tg = None):
         self.obj = new incflo.incflo()
-
-    def __dealloc__(AMRWind self):
-        del self.obj
-
-    # def init(AMRWind self):
-    #     """Initialize the solver"""
-    #     self.obj.InitData()
-
-    def init(AMRWind self, TiogaAPI tg = None):
-        """Initialize mesh"""
-        self.obj.init_mesh()
-        self.obj.init_amr_wind_modules()
-
         if tg is not None:
             self.obj.sim().activate_overset()
             self.tgiface.reset(new amr_tioga_iface.AMRTiogaIface(
                 self.obj.sim(), deref(tg.tg)))
 
-    def register_mesh(AMRWind self):
+    def __dealloc__(AMRWind self):
+        del self.obj
+
+    def init_prolog(AMRWind self):
+        """Initialization actions before overset connectivity"""
+        self.obj.init_mesh()
+        self.obj.init_amr_wind_modules()
+
+    def init_epilog(AMRWind self):
+        """Initialization actions after overset connectivity"""
+
+    def pre_overset_conn_work(AMRWind self):
         """Register mesh for TIOGA connectivity"""
         if not self.tgiface:
             raise RuntimeError("Overset capability not activated in AMR-Wind")
-        deref(self.tgiface).register_mesh()
+        deref(self.tgiface).pre_overset_conn_work()
+
+    def post_overset_conn_work(AMRWind self):
+        """Register mesh for TIOGA connectivity"""
+        if not self.tgiface:
+            raise RuntimeError("Overset capability not activated in AMR-Wind")
+        deref(self.tgiface).post_overset_conn_work()
 
     def prepare_for_time_integration(AMRWind self):
         """Actions after overset connectivity has been established"""

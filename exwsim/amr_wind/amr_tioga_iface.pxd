@@ -8,4 +8,5 @@ from .cpp.cfd_sim cimport CFDSim
 cdef extern from "AMRTiogaIface.h" namespace "exwsim" nogil:
     cdef cppclass AMRTiogaIface:
         AMRTiogaIface(CFDSim&, tioga&)
-        void register_mesh()
+        void pre_overset_conn_work()
+        void post_overset_conn_work()
