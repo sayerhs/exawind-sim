@@ -22,8 +22,13 @@ endfunction()
 function(add_nalu_wind_module modname)
   add_exwsim_module(${modname})
 
-  target_link_libraries(${modname}
-    Nalu-Wind::nalu)
+  target_link_libraries(${modname} Nalu-Wind::nalu)
+
+  if (NALU_USES_OPENFAST)
+    target_include_directories(${modname} SYSTEM PUBLIC ${OpenFAST_INCLUDE_DIRS})
+    target_link_libraries(${modname}
+      ${OpenFAST_LIBRARIES} ${OpenFAST_CPP_LIBRARIES})
+  endif()
 endfunction()
 
 function(add_tioga_module modname)
