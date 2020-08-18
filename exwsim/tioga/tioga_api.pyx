@@ -9,14 +9,14 @@ from mpi4py cimport libmpi as mpi
 cdef class TiogaAPI:
     """TiogaAPI wrapper"""
 
-    def __cinit__(self):
+    def __cinit__(TiogaAPI self):
         self.tg = NULL
         self.owner = False
         self.mpi_comm_set = False
         self.mpi_rank = 0
         self.mpi_size = 1
 
-    def __dealloc__(self):
+    def __dealloc__(TiogaAPI self):
         if self.tg is not NULL and self.owner is True:
             del self.tg
 
@@ -27,11 +27,11 @@ cdef class TiogaAPI:
         obj.owner = owner
         return obj
 
-    def __init__(self):
+    def __init__(TiogaAPI self):
         self.tg = new _tioga()
         self.owner = True
 
-    def set_communicator(self, MPI.Comm comm):
+    def set_communicator(TiogaAPI self, MPI.Comm comm):
         """Set communicator instance
 
         Args:
@@ -47,22 +47,25 @@ cdef class TiogaAPI:
         self.mpi_rank = rank
         self.mpi_size = size
 
-    def profile(self):
+    def profile(TiogaAPI self):
         """Profile"""
         self.tg.profile()
 
-    def perform_connectivity(self):
+    def perform_connectivity(TiogaAPI self):
         """Call to native perform connectivity routine"""
         self.tg.performConnectivity()
 
-    def perform_connectivity_amr(self):
+    def perform_connectivity_amr(TiogaAPI self):
         """Call to native perform connectivity routine"""
         self.tg.performConnectivityAMR()
 
-    def data_update(self, int num_comp, bint row_major=True):
+    def data_update(TiogaAPI self, int num_comp, bint row_major=True):
         """Perform solution interpolation"""
         cdef int interptype = 0 if row_major else 1
         self.tg.dataUpdate(num_comp, interptype)
+
+    def data_update_amr(TiogaAPI self):
+        self.tg.dataUpdate_AMR()
 
 tioga_instance = TiogaAPI()
 
