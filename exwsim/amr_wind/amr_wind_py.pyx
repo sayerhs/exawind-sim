@@ -65,6 +65,22 @@ cdef class AMRWind:
         """Actions after overset connectivity has been established"""
         self.obj.prepare_for_time_integration()
 
+    def register_solution(AMRWind self):
+        deref(self.tgiface).register_solution()
+
+    def pre_advance_stage1(AMRWind self):
+        self.obj.sim().time().new_timestep()
+        self.obj.regrid_and_update()
+
+    def pre_advance_stage2(AMRWind self):
+        pass
+
+    def advance_timestep(AMRWind self):
+        self.obj.advance()
+
+    def post_advance_work(AMRWind self):
+        self.obj.post_advance_work()
+
     @property
     def incflo(AMRWind self):
         return Incflo.wrap_instance(self.obj)

@@ -57,4 +57,33 @@ void AMRTiogaIface::register_mesh()
     }
 }
 
+void AMRTiogaIface::register_solution()
+{
+    int ip_cell = 0;
+    int ip_node = 0;
+
+    const int ncell_vars = 3;
+    const int nnode_vars = 1;
+    auto& repo = m_sim.repo();
+    auto& velocity = repo.get_field("velocity");
+    auto& pressure = repo.get_field("p");
+
+    // Ensure that ghost cells are consistent
+    AMREX_ALWAYS_ASSERT(velocity.num_grow()[0] == pressure.num_grow()[0]);
+
+    const int nlevels = m_sim.mesh().finestLevel() + 1;
+    for (int lev = 0; lev < nlevels; ++lev) {
+        auto& vel = velocity(lev);
+        auto& pres = pressure(lev);
+
+        for (amrex::MFIter mfi(vel); mfi.isValid(); ++mfi) {
+            auto& varr = vel[mfi];
+            m_tg.register_amr_solution(ip_cell++, varr.dataPtr(), ncell_vars, 0);
+
+            auto& parr = pres[mfi];
+            m_tg.register_amr_solution(ip_node++, parr.dataPtr(), 0, nnode_vars);
+        }
+    }
+}
+
 } // namespace exwsim

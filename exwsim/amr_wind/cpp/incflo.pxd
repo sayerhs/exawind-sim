@@ -15,6 +15,7 @@ cdef extern from "amr-wind/incflo.H" nogil:
         void prepare_for_time_integration()
         void advance()
         void post_advance_work()
+        void regrid_and_update()
 
         void InitData()
         void Evolve()
