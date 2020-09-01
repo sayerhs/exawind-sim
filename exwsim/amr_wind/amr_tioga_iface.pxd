@@ -11,3 +11,4 @@ cdef extern from "AMRTiogaIface.h" namespace "exwsim" nogil:
         void pre_overset_conn_work()
         void post_overset_conn_work()
         void register_solution()
+        void update_solution()

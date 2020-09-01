@@ -62,6 +62,7 @@ void AMRTiogaIface::register_solution()
     int ip_cell = 0;
     int ip_node = 0;
 
+#if 0
     const int ncell_vars = 3;
     const int nnode_vars = 1;
     auto& repo = m_sim.repo();
@@ -84,6 +85,36 @@ void AMRTiogaIface::register_solution()
             m_tg.register_amr_solution(ip_node++, parr.dataPtr(), 0, nnode_vars);
         }
     }
+#endif
+
+    auto* amr_tg_iface = dynamic_cast<amr_wind::TiogaInterface*>(
+        m_sim.overset_manager());
+    amr_tg_iface->register_solution();
+    auto& qcell = amr_tg_iface->qvars_cell();
+    auto& qnode = amr_tg_iface->qvars_node();
+    const int ncell_vars = qcell.num_comp();
+    const int nnode_vars = qnode.num_comp();
+
+    // Ensure that ghost cells are consistent
+    AMREX_ALWAYS_ASSERT(qcell.num_grow()[0] == qnode.num_grow()[0]);
+    const int nlevels = m_sim.mesh().finestLevel() + 1;
+    for (int lev = 0; lev < nlevels; ++lev) {
+        auto& qcfab = qcell(lev);
+        auto& qnfab = qnode(lev);
+
+        for (amrex::MFIter mfi(qcfab); mfi.isValid(); ++mfi) {
+            auto& varr = qcfab[mfi];
+            m_tg.register_amr_solution(ip_cell++, varr.dataPtr(), ncell_vars, 0);
+
+            auto& parr = qnfab[mfi];
+            m_tg.register_amr_solution(ip_node++, parr.dataPtr(), 0, nnode_vars);
+        }
+    }
+}
+
+void AMRTiogaIface::update_solution()
+{
+    m_sim.overset_manager()->update_solution();
 }
 
 } // namespace exwsim

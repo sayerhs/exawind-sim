@@ -68,6 +68,9 @@ cdef class AMRWind:
     def register_solution(AMRWind self):
         deref(self.tgiface).register_solution()
 
+    def update_solution(AMRWind self):
+        deref(self.tgiface).update_solution()
+
     def pre_advance_stage1(AMRWind self):
         self.obj.sim().time().new_timestep()
         self.obj.regrid_and_update()
