@@ -6,12 +6,12 @@ for overset simulations.
 
 ## Files
 
-- [nalu_amr.py](./nalu_amr.py) -- Driver script demonstrating coupling Nalu-Wind
+- [sphere_amr_nalu.py](./sphere_amr_nalu.py) -- Driver script demonstrating coupling Nalu-Wind
   and AMR-Wind
   
-- [amr_ovset.inp](./amr_ovset.inp) -- Input file for AMR-Wind
+- [sphere-amr.inp](./sphere-amr.inp) -- Input file for AMR-Wind
 
-- [sphere.yaml](./sphere.yaml) -- Input file for Nalu-Wind
+- [sphere-nalu.yaml](./sphere-nalu.yaml) -- Input file for Nalu-Wind
 
 ## Running the case
 

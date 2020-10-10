@@ -59,7 +59,7 @@ realms:
           - Unspecified-7-HEX
         value:
           pressure: 0.0
-          velocity: [1.0,0.0,0.0]
+          velocity: [0.0,0.0,0.0]
 
     material_properties:
       target_name:
@@ -76,7 +76,7 @@ realms:
 
         - name: viscosity
           type: constant
-          value: 0.005
+          value: 0.001
 
     boundary_conditions:
 
@@ -133,7 +133,7 @@ realms:
 
     output:
       output_data_base_name: overset/sphere.e
-      output_frequency: 10
+      output_frequency: 5
       output_node_set: no
       output_variables:
        - velocity
@@ -149,7 +149,7 @@ Time_Integrators:
       name: ti_1
       start_time: 0
       termination_step_count: 5
-      time_step: 0.003
+      time_step: 0.025
       time_stepping_type: fixed
       time_step_count: 0
       second_order_accuracy: yes

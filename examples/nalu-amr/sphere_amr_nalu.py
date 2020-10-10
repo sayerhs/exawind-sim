@@ -16,12 +16,12 @@ tg = tioga.get_instance()
 tg.set_communicator(comm)
 
 print("Initializing AMR-Wind", flush=True)
-base.AMReX.initialize("amr_ovset.inp")
+base.AMReX.initialize("sphere-amr.inp")
 awind = AMRWind(tg)
 awind.init_prolog()
 
 print("Initializing Nalu-Wind", flush=True)
-nalu = nw.NaluWind(comm, "sphere.yaml", tg)
+nalu = nw.NaluWind(comm, "sphere-nalu.yaml", tg)
 nalu.init_prolog(multi_solver_mode=True)
 nalu.pre_overset_conn_work()
 awind.pre_overset_conn_work()
@@ -32,7 +32,41 @@ nalu.post_overset_conn_work()
 awind.post_overset_conn_work()
 nalu.init_epilog()
 nalu.prepare_for_time_integration()
+
+ncomp = nalu.register_solution()
+awind.register_solution()
+tg.data_update_amr()
+nalu.update_solution()
+awind.update_solution()
+
 awind.prepare_for_time_integration()
+
+comm.Barrier()
+
+num_timesteps = 10
+for nt in range(num_timesteps):
+    nalu.pre_advance_stage1()
+    awind.pre_advance_stage1()
+
+    nalu.pre_advance_stage2()
+    awind.pre_advance_stage2()
+
+    nalu.register_solution()
+    awind.register_solution()
+    tg.data_update_amr()
+    nalu.update_solution()
+    awind.update_solution()
+    comm.Barrier()
+
+    nalu.advance_timestep()
+    awind.advance_timestep()
+    comm.Barrier()
+
+    nalu.post_advance()
+    awind.post_advance_work()
+    comm.Barrier()
+
+
 
 del awind
 del nalu
