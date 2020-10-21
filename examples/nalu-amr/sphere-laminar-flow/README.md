@@ -21,13 +21,13 @@ the Nalu-Wind regression test suite.
 
 ```bash
 # Copy files to execution directory
-cd exawind-sim/examples
-cp -R nalu-amr /scratch/${USER}/
-cd /scratch/${USER}/nalu-amr
+cd exawind-sim/examples/nalu-amr/
+cp -R sphere-laminar-flow /scratch/${USER}/
+cd /scratch/${USER}/sphere-laminar-flow
 
 # Create symlink to mesh file
 ln -s ${NALU_DIR}/reg_tests/mesh/oversetSphereTIOGA.g
 
 # Execute python script
-mpiexec -np 1 python nalu_amr.py
+mpiexec -np 1 python sphere_amr_nalu.py
 ```
