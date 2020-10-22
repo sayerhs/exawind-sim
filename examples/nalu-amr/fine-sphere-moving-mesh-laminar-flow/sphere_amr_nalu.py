@@ -99,7 +99,7 @@ for nt in range(num_timesteps):
     t7 = time.perf_counter()
 
     if rank == 0:
-        print(f"WallClockTime: {nt} Pre1: {t1-t0:.6f} Tioga Conn {t2-t1:.6f} Pre2: {t3-t2:.6f} Update: {t4-t3:.6f} nalu timestep: {t5-t4:.6f} amr-wind timestep: {t6-t5:.6f} Post: {t7-t6:.6f} Total: {t7-t0:.6f}", flush=True)
+        print(f"WallClockTime: {nt} Pre1: {t1-t0:.6f} TiogaConn: {t2-t1:.6f} Pre2: {t3-t2:.6f} Update: {t4-t3:.6f} nalu timestep: {t5-t4:.6f} amr-wind timestep: {t6-t5:.6f} Post: {t7-t6:.6f} Total: {t7-t0:.6f}", flush=True)
 
 del awind
 del nalu
