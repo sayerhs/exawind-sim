@@ -13,6 +13,7 @@ find_package(Trilinos REQUIRED)
 find_package(TIOGA REQUIRED)
 find_package(Nalu-Wind REQUIRED)
 find_package(AMR-Wind REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem iostreams)
 
 if (NALU_USES_OPENFAST)
   find_package(OpenFAST REQUIRED)
