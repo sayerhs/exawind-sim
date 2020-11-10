@@ -1,6 +1,7 @@
 #ifndef AMRTIOGAIFACE_H
 #define AMRTIOGAIFACE_H
 
+#include <memory>
 #include <vector>
 
 namespace amr_wind {
@@ -9,6 +10,7 @@ class CFDSim;
 
 namespace TIOGA {
 class tioga;
+struct AMRMeshInfo;
 }
 
 namespace exwsim {
@@ -31,6 +33,8 @@ public:
 private:
     amr_wind::CFDSim& m_sim;
     TIOGA::tioga& m_tg;
+
+    std::unique_ptr<TIOGA::AMRMeshInfo> m_info;
 };
 
 } // namespace exwsim

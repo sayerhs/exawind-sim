@@ -3,12 +3,25 @@
 #include "AMRTiogaIface.h"
 #include "amr-wind/CFDSim.H"
 #include "amr-wind/overset/TiogaInterface.H"
+#include "TiogaMeshInfo.h"
 #include "tioga.h"
 
 namespace exwsim {
 
+namespace {
+
+template <typename T1, typename T2>
+void amr_to_tioga(T1& lhs, T2& rhs)
+{
+    lhs.sz = rhs.size();
+    lhs.hptr = rhs.h_view.data();
+    lhs.dptr = rhs.d_view.data();
+}
+
+} // namespace
+
 AMRTiogaIface::AMRTiogaIface(amr_wind::CFDSim& sim, TIOGA::tioga& tg)
-    : m_sim(sim), m_tg(tg)
+    : m_sim(sim), m_tg(tg), m_info(new TIOGA::AMRMeshInfo)
 {}
 
 void AMRTiogaIface::pre_overset_conn_work()
@@ -28,88 +41,54 @@ void AMRTiogaIface::register_mesh()
     auto& mesh = m_sim.mesh();
     const int nlevels = mesh.finestLevel() + 1;
     const int num_ghost = m_sim.pde_manager().num_ghost_state();
-    const auto* problo = mesh.Geom(0).ProbLo();
 
     auto* amr_tg_iface = dynamic_cast<amr_wind::TiogaInterface*>(
         m_sim.overset_manager());
-    auto& oinfo = amr_tg_iface->amr_mesh_info();
+    auto& ad = amr_tg_iface->amr_overset_info();
+    auto& mi = *m_info;
 
-    m_tg.register_amr_global_data(
-        num_ghost, oinfo.int_data.data(), oinfo.real_data.data(), oinfo.ngrids_global);
-    m_tg.set_amr_patch_count(oinfo.ngrids_local);
+    mi.ngrids_global = ad.ngrids_global;
+    mi.ngrids_local = ad.ngrids_local;
+    mi.num_ghost = num_ghost;
+    amr_to_tioga(mi.level, ad.level);
+    amr_to_tioga(mi.mpi_rank, ad.mpi_rank);
+    amr_to_tioga(mi.local_id, ad.local_id);
+    amr_to_tioga(mi.ilow, ad.ilow);
+    amr_to_tioga(mi.ihigh, ad.ihigh);
+    amr_to_tioga(mi.dims, ad.dims);
+    amr_to_tioga(mi.xlo, ad.xlo);
+    amr_to_tioga(mi.dx, ad.dx);
+    amr_to_tioga(mi.global_idmap, ad.global_idmap);
+    amr_to_tioga(mi.iblank_node, ad.iblank_node);
+    amr_to_tioga(mi.iblank_cell, ad.iblank_cell);
+    amr_to_tioga(mi.qcell, ad.qcell);
+    amr_to_tioga(mi.qnode, ad.qnode);
 
-    // Register local patches
-    int ilp = 0; // Index of local patch
-    auto& ibcell = m_sim.repo().get_int_field("iblank_cell");
-    auto& ibnode = m_sim.repo().get_int_field("iblank_node");
-    for (int lev=0; lev < nlevels; ++lev) {
-        auto& idmap = oinfo.gid_map[lev];
-        auto& ibfab = ibcell(lev);
-        auto& ibnodefab = ibnode(lev);
+    // Will reset when we register solution
+    mi.nvar_cell = 0;
+    mi.nvar_node = 0;
 
-        int ii = 0;
-        for (amrex::MFIter mfi(ibfab); mfi.isValid(); ++mfi) {
-            auto& ib = ibfab[mfi];
-            auto& ibn = ibnodefab[mfi];
-            m_tg.register_amr_local_data(
-                ilp++, idmap[ii++], ib.dataPtr(), ibn.dataPtr());
-        }
-    }
+    m_tg.register_amr_grid(m_info.get());
 }
 
 void AMRTiogaIface::register_solution()
 {
-    int ip_cell = 0;
-    int ip_node = 0;
-
-#if 0
-    const int ncell_vars = 3;
-    const int nnode_vars = 1;
-    auto& repo = m_sim.repo();
-    auto& velocity = repo.get_field("velocity");
-    auto& pressure = repo.get_field("p");
-
-    // Ensure that ghost cells are consistent
-    AMREX_ALWAYS_ASSERT(velocity.num_grow()[0] == pressure.num_grow()[0]);
-
-    const int nlevels = m_sim.mesh().finestLevel() + 1;
-    for (int lev = 0; lev < nlevels; ++lev) {
-        auto& vel = velocity(lev);
-        auto& pres = pressure(lev);
-
-        for (amrex::MFIter mfi(vel); mfi.isValid(); ++mfi) {
-            auto& varr = vel[mfi];
-            m_tg.register_amr_solution(ip_cell++, varr.dataPtr(), ncell_vars, 0);
-
-            auto& parr = pres[mfi];
-            m_tg.register_amr_solution(ip_node++, parr.dataPtr(), 0, nnode_vars);
-        }
-    }
-#endif
-
     auto* amr_tg_iface = dynamic_cast<amr_wind::TiogaInterface*>(
         m_sim.overset_manager());
     amr_tg_iface->register_solution();
     auto& qcell = amr_tg_iface->qvars_cell();
     auto& qnode = amr_tg_iface->qvars_node();
-    const int ncell_vars = qcell.num_comp();
-    const int nnode_vars = qnode.num_comp();
 
     // Ensure that ghost cells are consistent
     AMREX_ALWAYS_ASSERT(qcell.num_grow()[0] == qnode.num_grow()[0]);
-    const int nlevels = m_sim.mesh().finestLevel() + 1;
-    for (int lev = 0; lev < nlevels; ++lev) {
-        auto& qcfab = qcell(lev);
-        auto& qnfab = qnode(lev);
 
-        for (amrex::MFIter mfi(qcfab); mfi.isValid(); ++mfi) {
-            auto& varr = qcfab[mfi];
-            m_tg.register_amr_solution(ip_cell++, varr.dataPtr(), ncell_vars, 0);
-
-            auto& parr = qnfab[mfi];
-            m_tg.register_amr_solution(ip_node++, parr.dataPtr(), 0, nnode_vars);
-        }
-    }
+    auto& ad = amr_tg_iface->amr_overset_info();
+    auto& mi = *m_info;
+    mi.nvar_cell = qcell.num_comp();
+    mi.nvar_node = qnode.num_comp();
+    amr_to_tioga(mi.qcell, ad.qcell);
+    amr_to_tioga(mi.qnode, ad.qnode);
+    m_tg.register_amr_solution();
 }
 
 void AMRTiogaIface::update_solution()
