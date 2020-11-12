@@ -3,6 +3,8 @@
 # cython: embedsignature = True
 
 from libcpp cimport bool
+from libcpp.vector cimport vector
+from libcpp.string cimport string
 from ...tioga.tioga_cpp cimport tioga
 
 cdef extern from "overset/ExtOverset.h" namespace "sierra::nalu" nogil:
@@ -11,7 +13,7 @@ cdef extern from "overset/ExtOverset.h" namespace "sierra::nalu" nogil:
         void exchange_solution()
         void pre_overset_conn_work()
         void post_overset_conn_work()
-        int register_solution()
+        int register_solution(const vector[string]&)
         void update_solution()
 
         bool multi_solver_mode()

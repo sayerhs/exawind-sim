@@ -9,6 +9,7 @@ Nalu-Wind Interface
 
 from cython.operator cimport dereference as deref
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 from mpi4py cimport MPI
 from mpi4py cimport libmpi as mpi
 from stk.api.util.parallel cimport Parallel
@@ -156,9 +157,13 @@ cdef class NaluWind:
         """Perform necessary updates within Nalu-Wind after overset connectivity step"""
         deref(self.sim.timeIntegrator_.overset_).post_overset_conn_work()
 
-    def register_solution(NaluWind self):
+    def register_solution(NaluWind self, list field_names = None):
         """Register the latest solution fields with TIOGA for solution exchange"""
-        return deref(self.sim.timeIntegrator_.overset_).register_solution()
+        cdef list finp = field_names or ["velocity", "pressure"]
+        cdef vector[string] fnames
+        for ff in finp:
+            fnames.push_back(ff.encode('UTF-8'))
+        return deref(self.sim.timeIntegrator_.overset_).register_solution(fnames)
 
     def update_solution(NaluWind self):
         """Update Nalu-Wind solution fields after an overset solution exchange step"""
