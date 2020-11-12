@@ -26,7 +26,9 @@ public:
 
     void register_mesh();
 
-    void register_solution();
+    void register_solution(
+        const std::vector<std::string>& cell_vars,
+        const std::vector<std::string>& node_vars);
 
     void update_solution();
 
