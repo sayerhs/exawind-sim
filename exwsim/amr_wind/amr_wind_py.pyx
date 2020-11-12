@@ -3,6 +3,7 @@
 # cython: embedsignature = True
 
 from cython.operator cimport dereference as deref
+from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.cast cimport dynamic_cast
 from amrex.amrex_core cimport AmrCore
@@ -65,8 +66,16 @@ cdef class AMRWind:
         """Actions after overset connectivity has been established"""
         self.obj.prepare_for_time_integration()
 
-    def register_solution(AMRWind self):
-        deref(self.tgiface).register_solution()
+    def register_solution(AMRWind self, list cell_vars = None, list node_vars = None):
+        cdef list cvarsl = cell_vars or [ "velocity" ]
+        cdef list nvarsl = node_vars or [ "p" ]
+        cdef vector[string] cvars
+        cdef vector[string] nvars
+        for cv in cvarsl:
+            cvars.push_back(cv.encode('UTF-8'))
+        for nv in nvarsl:
+            nvars.push_back(nv.encode('UTF-8'))
+        deref(self.tgiface).register_solution(cvars, nvars)
 
     def update_solution(AMRWind self):
         deref(self.tgiface).update_solution()
