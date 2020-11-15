@@ -13,7 +13,7 @@ cdef extern from "amr-wind/incflo.H" nogil:
         void init_mesh()
         void init_amr_wind_modules()
         void prepare_for_time_integration()
-        void regrid_and_update()
+        bint regrid_and_update()
         void pre_advance_stage1()
         void pre_advance_stage2()
         void advance()
