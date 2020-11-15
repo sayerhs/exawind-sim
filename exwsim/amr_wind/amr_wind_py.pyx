@@ -9,6 +9,10 @@ from libcpp.cast cimport dynamic_cast
 from amrex.amrex_core cimport AmrCore
 from amrex.amrex_base cimport MultiFab
 from ..tioga.tioga_api cimport TiogaAPI
+from amrex.utils cimport iostream
+
+cdef extern from "amr-wind/utilities/console_io.H" namespace "amr_wind::io" nogil:
+    void print_banner(iostream.ostream&)
 
 cpdef enum FieldState:
     NP1 = <int>field.FieldState.NP1
@@ -34,6 +38,11 @@ cdef class AMRWind:
 
     def __cinit__(AMRWind self, PyAMReX amrex_obj, TiogaAPI tg = None):
         self.amrex = amrex_obj
+        if not self.amrex.logfile is NULL:
+            print_banner(deref(self.amrex.logfile))
+        else:
+            print_banner(iostream.cout)
+
         self.obj = new incflo.incflo()
         if tg is not None:
             self.obj.sim().activate_overset()
