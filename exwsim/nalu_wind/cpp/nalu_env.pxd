@@ -3,6 +3,7 @@
 # cython: embedsignature = True
 
 from libcpp.string cimport string
+from ...utils cimport iostream
 
 cdef extern from "mpi.h" nogil:
     ctypedef struct _mpi_comm_t
@@ -15,6 +16,9 @@ cdef extern from "NaluEnv.h" namespace "sierra::nalu" nogil:
         NaluEnv& self()
 
         void set_log_file_stream(string, bint)
+
+        iostream.ostream& naluOutputP0()
+        iostream.ostream& naluOutput()
 
         MPI_Comm parallel_comm()
         int parallel_rank()

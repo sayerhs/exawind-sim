@@ -22,6 +22,22 @@ from pathlib import Path
 
 import atexit
 
+cdef extern from * namespace "cy_exw":
+    """
+    namespace cy_exw {
+    inline void
+    nalu_wind_outputp0(
+      sierra::nalu::NaluEnv& env,
+      const std::string& msg, bool add_endl = true)
+    {
+         std::ostream& out = env.naluOutputP0();
+         out << msg;
+         if (add_endl) out << std::endl;
+    }
+    }
+    """
+    void nalu_wind_outputp0(NaluEnv, const string&, bint)
+
 cpdef kokkos_initialize(int num_devices=-1):
     """Initialize Kokkos
 
@@ -168,6 +184,16 @@ cdef class NaluWind:
     def update_solution(NaluWind self):
         """Update Nalu-Wind solution fields after an overset solution exchange step"""
         deref(self.sim.timeIntegrator_.overset_).update_solution()
+
+    def print_log(NaluWind self, str msg, bint emit_newline = True):
+        """Print message to nalu wind log file"""
+        cdef string cmsg = msg.encode('UTF-8')
+        nalu_wind_outputp0(deref(self.env), msg, emit_newline)
+
+    def echo(NaluWind self, *args, **kwargs):
+        """Print message only on the root process for Nalu-Wind"""
+        if self.env.parallel_rank() == 0:
+            print(*args, **kwargs)
 
     # @property
     # def time_integrator(NaluWind self):
