@@ -7,9 +7,11 @@ from .cpp cimport incflo
 from .cpp cimport cfd_sim
 from .cpp cimport field
 from . cimport amr_tioga_iface
+from amrex.pyamrex cimport PyAMReX
 from amrex.amrex_core cimport AmrCore
 
 cdef class AMRWind:
+    cdef PyAMReX amrex
     cdef incflo.incflo* obj
     cdef unique_ptr[amr_tioga_iface.AMRTiogaIface] tgiface
 

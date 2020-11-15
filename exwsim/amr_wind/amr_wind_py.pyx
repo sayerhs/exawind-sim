@@ -32,7 +32,8 @@ cdef class AMRWind:
     This class represents the entrypoint from Python to excute the AMR-Wind solver.
     """
 
-    def __cinit__(AMRWind self, TiogaAPI tg = None):
+    def __cinit__(AMRWind self, PyAMReX amrex_obj, TiogaAPI tg = None):
+        self.amrex = amrex_obj
         self.obj = new incflo.incflo()
         if tg is not None:
             self.obj.sim().activate_overset()
@@ -93,6 +94,16 @@ cdef class AMRWind:
 
     def post_advance_work(AMRWind self):
         self.obj.post_advance_work()
+
+    def print_log(AMRWind self, str msg, bint emit_newline = True):
+        """Print message to AMReX log file"""
+        cdef string cmsg = msg.encode('UTF-8')
+        self.amrex.print(cmsg, emit_newline)
+
+    def echo(AMRWind self, *args, **kwargs):
+        """Echo message on root processor"""
+        if self.amrex.is_io_proc:
+            print(*args, **kwargs)
 
     @property
     def incflo(AMRWind self):
