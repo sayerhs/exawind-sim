@@ -25,6 +25,7 @@ cdef extern from "amr-wind/core/SimTime.H" namespace "amr_wind" nogil:
         crx.Real new_time()
         crx.Real max_cfl()
         int time_index()
+        int regrid_interval()
         bint adaptive_timesetp()
         bint use_force_cfl()
         void parse_parameters()

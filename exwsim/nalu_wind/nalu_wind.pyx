@@ -122,7 +122,7 @@ cdef class NaluWind:
         self.sim.breadboard()
         self.sim.initialize()
 
-    def init_prolog(NaluWind self, bint multi_solver_mode=False):
+    def init_prolog(NaluWind self, bint multi_solver_mode=False, **kwargs):
         """Perform init tasks before overset connectivity"""
         self.sim.load(self.doc)
         deref(self.sim.timeIntegrator_.overset_).set_multi_solver_mode(multi_solver_mode)
@@ -214,3 +214,21 @@ cdef class NaluWind:
         par.rank = self.env.pRank_
         par.size = self.env.pSize_
         return par
+
+    @property
+    def overset_update_interval(NaluWind self):
+        """Update interval for overset connectivity"""
+        for realm in self.sim.timeIntegrator_.realmVec_:
+            if realm.does_mesh_move():
+                return 1
+        return 100000000
+
+    @property
+    def is_unstructured(NaluWind self):
+        """Is this an unstructured solver"""
+        return True
+
+    @property
+    def is_amr(NaluWind self):
+        """Is this an AMR solver"""
+        return False

@@ -6,13 +6,14 @@ from cython.operator cimport dereference as deref
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.cast cimport dynamic_cast
+from mpi4py cimport libmpi as mpi
 from amrex.amrex_core cimport AmrCore
 from amrex.amrex_base cimport MultiFab
 from ..tioga.tioga_api cimport TiogaAPI
 from amrex.utils cimport iostream
 
 cdef extern from "amr-wind/utilities/console_io.H" namespace "amr_wind::io" nogil:
-    void print_banner(iostream.ostream&)
+    void print_banner(mpi.MPI_Comm, iostream.ostream&)
 
 cpdef enum FieldState:
     NP1 = <int>field.FieldState.NP1
@@ -39,9 +40,9 @@ cdef class AMRWind:
     def __cinit__(AMRWind self, PyAMReX amrex_obj, TiogaAPI tg = None):
         self.amrex = amrex_obj
         if not self.amrex.logfile is NULL:
-            print_banner(deref(self.amrex.logfile))
+            print_banner(amrex_obj.comm.ob_mpi, deref(self.amrex.logfile))
         else:
-            print_banner(iostream.cout)
+            print_banner(amrex_obj.comm.ob_mpi, iostream.cout)
 
         self.obj = new incflo.incflo()
         if tg is not None:
@@ -52,7 +53,7 @@ cdef class AMRWind:
     def __dealloc__(AMRWind self):
         del self.obj
 
-    def init_prolog(AMRWind self):
+    def init_prolog(AMRWind self, **kwargs):
         """Initialization actions before overset connectivity"""
         self.obj.init_mesh()
         self.obj.init_amr_wind_modules()
@@ -101,7 +102,7 @@ cdef class AMRWind:
     def advance_timestep(AMRWind self):
         self.obj.advance()
 
-    def post_advance_work(AMRWind self):
+    def post_advance(AMRWind self):
         self.obj.post_advance_work()
 
     def print_log(AMRWind self, str msg, bint emit_newline = True):
@@ -127,6 +128,22 @@ cdef class AMRWind:
     def repo(AMRWind self):
         """Return the FieldRepository instance associated with the solver"""
         return FieldRepo.wrap_instance(&(self.obj.repo()))
+
+    @property
+    def overset_update_interval(AMRWind self):
+        """Update interval for overset connectivity"""
+        regrid_int = self.obj.sim().time().regrid_interval()
+        return regrid_int if (regrid_int > 0) else 100000000
+
+    @property
+    def is_unstructured(AMRWind self):
+        """Is this an unstructured solver"""
+        return False
+
+    @property
+    def is_amr(AMRWind self):
+        """Is this an AMR solver"""
+        return True
 
 ctypedef incflo.incflo* _CppIncfloPtr
 
