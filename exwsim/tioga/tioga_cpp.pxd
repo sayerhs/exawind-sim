@@ -36,6 +36,7 @@ cdef extern from "tioga.h" namespace "TIOGA" nogil:
         void set_amr_patch_count(int)
         void register_amr_local_data(int, int, int*, int*)
         void register_amr_solution(int, double*, int, int)
+        void preprocess_amr_data(int)
 
         void getDonorCount(int btag, int* dcount, int* fcount)
         void getDonorInfo(int btag, int* receptors, int* indices,
