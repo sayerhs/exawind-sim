@@ -1,0 +1,14 @@
+nalu_preprocess:
+  input_db: ctv_mesh.exo
+  output_db: ctv_rotated.exo
+
+  tasks:
+    - rotate_mesh
+
+  rotate_mesh:
+    mesh_parts:
+      - fluid
+
+    angle: 45.0
+    origin: [1.0, 1.0, 0.0]
+    axis: [0.0, 0.0, 1.0]

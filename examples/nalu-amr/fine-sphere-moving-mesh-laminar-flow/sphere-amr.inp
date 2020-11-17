@@ -50,8 +50,9 @@ geometry.prob_hi        =   24.0 8.0 8.0 # Hi corner coordinates
 
 geometry.is_periodic    =   0   1   1   # Periodicity x y z (0/1)
 
-tagging.static_refinement = true
-tagging.static_refinement_def = static_box.txt 
+tagging.labels = sr
+tagging/sr.type = CartBoxRefinement 
+tagging/sr.static_refinement_def = static_box.txt
 
 incflo.delp             =   0.  0.  0.  # Prescribed (cyclic) pressure gradient
 
