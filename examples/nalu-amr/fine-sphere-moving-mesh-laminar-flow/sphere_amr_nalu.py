@@ -94,7 +94,7 @@ for nt in range(num_timesteps):
     t6 = time.perf_counter()
 
     nalu.post_advance()
-    awind.post_advance_work()
+    awind.post_advance()
     comm.Barrier()
     t7 = time.perf_counter()
 

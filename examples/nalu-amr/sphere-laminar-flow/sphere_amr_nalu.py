@@ -63,7 +63,7 @@ for nt in range(num_timesteps):
     comm.Barrier()
 
     nalu.post_advance()
-    awind.post_advance_work()
+    awind.post_advance()
     comm.Barrier()
 
 
