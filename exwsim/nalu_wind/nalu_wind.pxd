@@ -11,3 +11,4 @@ cdef class NaluWind:
     cdef YNode doc
     cdef NaluEnv* env
     cdef _Sim* sim
+    cdef public list overset_vars

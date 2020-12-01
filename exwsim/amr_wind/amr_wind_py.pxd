@@ -14,6 +14,8 @@ cdef class AMRWind:
     cdef PyAMReX amrex
     cdef incflo.incflo* obj
     cdef unique_ptr[amr_tioga_iface.AMRTiogaIface] tgiface
+    cdef public list cell_vars
+    cdef public list node_vars
 
 cdef class CFDSim:
     cdef cfd_sim.CFDSim* sim

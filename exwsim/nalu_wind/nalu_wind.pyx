@@ -99,6 +99,7 @@ cdef class NaluWind:
         self.sim = new _Sim(self.doc)
         if tg is not None:
             ext_overset.TiogaRef.self(tg.tg)
+            self.overset_vars = [ "velocity", "pressure" ]
 
         cdef string lgfile = str(Path(yaml_file).stem + ".log").encode('UTF-8')
         if log_file is not None:
@@ -143,7 +144,17 @@ cdef class NaluWind:
 
     def prepare_for_time_integration(NaluWind self):
         """Perform one time pre-timestep actions"""
+        self.prepare_solver_prolog()
+        self.prepare_solver_epilog()
+
+    def prepare_solver_prolog(NaluWind self):
+        """Perform one-time pre-timestep actions before overset exchange"""
         self.sim.timeIntegrator_.prepare_for_time_integration()
+
+    def prepare_solver_epilog(NaluWind self):
+        """Ask realms to output results"""
+        for realm in self.sim.timeIntegrator_.realmVec_:
+            realm.output_converged_results()
 
     def pre_advance_stage1(NaluWind self):
         """Pre-advance work done before overset connectivity"""
@@ -175,7 +186,7 @@ cdef class NaluWind:
 
     def register_solution(NaluWind self, list field_names = None):
         """Register the latest solution fields with TIOGA for solution exchange"""
-        cdef list finp = field_names or ["velocity", "pressure"]
+        cdef list finp = field_names or self.overset_vars
         cdef vector[string] fnames
         for ff in finp:
             fnames.push_back(ff.encode('UTF-8'))

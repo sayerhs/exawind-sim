@@ -49,6 +49,8 @@ cdef class AMRWind:
             self.obj.sim().activate_overset()
             self.tgiface.reset(new amr_tioga_iface.AMRTiogaIface(
                 self.obj.sim(), deref(tg.tg)))
+            self.cell_vars = [ "velocity" ]
+            self.node_vars = [ "p" ]
 
     def __dealloc__(AMRWind self):
         del self.obj
@@ -75,11 +77,20 @@ cdef class AMRWind:
 
     def prepare_for_time_integration(AMRWind self):
         """Actions after overset connectivity has been established"""
+        self.prepare_solver_prolog()
+        self.prepare_solver_epilog()
+
+    def prepare_solver_prolog(AMRWind self):
+        """Perform one-time pre-timestep actions before overset exchange"""
+        pass
+
+    def prepare_solver_epilog(AMRWind self):
+        """Perform one-time pre-timestep actions after overset exchange"""
         self.obj.prepare_for_time_integration()
 
     def register_solution(AMRWind self, list cell_vars = None, list node_vars = None):
-        cdef list cvarsl = cell_vars or [ "velocity" ]
-        cdef list nvarsl = node_vars or [ "p" ]
+        cdef list cvarsl = cell_vars or self.cell_vars
+        cdef list nvarsl = node_vars or self.node_vars
         cdef vector[string] cvars
         cdef vector[string] nvars
         for cv in cvarsl:
