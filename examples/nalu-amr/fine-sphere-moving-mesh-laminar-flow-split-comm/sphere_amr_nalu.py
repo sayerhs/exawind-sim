@@ -35,8 +35,8 @@ tg = tioga.get_instance()
 tg.set_communicator(comm)
 
 if rank == 0: print("Initializing AMR-Wind", flush=True)
-base.AMReX.initialize("sphere-amr.inp")
-awind = AMRWind(tg)
+pamrex = amrex.PyAMReX(comm, "sphere-amr.inp")
+awind = AMRWind(pamrex, tg)
 awind.init_prolog()
 
 if rank == 0: print("Initializing Nalu-Wind", flush=True)
@@ -56,16 +56,18 @@ tg.perform_connectivity_amr()
 nalu.post_overset_conn_work()
 awind.post_overset_conn_work()
 nalu.init_epilog()
-nalu.prepare_for_time_integration()
-awind.prepare_for_time_integration()
 
-nalu.register_solution()
+nalu.prepare_solver_prolog()
+awind.prepare_solver_prolog()
+
+ncomp = nalu.register_solution()
 awind.register_solution()
 tg.data_update_amr()
 nalu.update_solution()
 awind.update_solution()
 
-#awind.prepare_for_time_integration()
+nalu.prepare_solver_epilog()
+awind.prepare_solver_epilog()
 
 comm.Barrier()
 
