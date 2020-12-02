@@ -6,8 +6,9 @@ for overset simulations.
 
 ## Files
 
-- [sphere_amr_nalu.py](./sphere_amr_nalu.py) -- Driver script demonstrating coupling Nalu-Wind
-  and AMR-Wind
+- [sphere.py](./sphere.py) -- Driver script demonstrating overset simulation using ExaWind hybrid solver API
+
+- [sphere_amr_nalu.py](./sphere_amr_nalu.py) -- Driver script demonstrating coupling using low-level API
   
 - [sphere-amr.inp](./sphere-amr.inp) -- Input file for AMR-Wind
 
@@ -29,5 +30,5 @@ cd /scratch/${USER}/sphere-laminar-flow
 ln -s ${NALU_DIR}/reg_tests/mesh/oversetSphereTIOGA.g
 
 # Execute python script
-mpiexec -np 1 python sphere_amr_nalu.py
+mpiexec -np 1 python3 sphere.py
 ```
