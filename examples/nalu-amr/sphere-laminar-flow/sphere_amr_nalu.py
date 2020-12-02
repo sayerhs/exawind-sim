@@ -5,7 +5,7 @@ AMR/Nalu integration
 """
 
 from mpi4py import MPI
-from amrex import base
+import amrex
 from exwsim import tioga
 from exwsim.amr_wind.amr_wind_py import AMRWind
 import exwsim.nalu_wind as nw

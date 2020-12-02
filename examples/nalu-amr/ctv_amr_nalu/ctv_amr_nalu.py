@@ -5,7 +5,7 @@ AMR/Nalu integration
 """
 
 from mpi4py import MPI
-from amrex import base
+import amrex
 from exwsim import tioga
 from exwsim.amr_wind.amr_wind_py import AMRWind
 import exwsim.nalu_wind as nw
@@ -67,7 +67,7 @@ for nt in range(num_timesteps):
     comm.Barrier()
 
     nalu.post_advance()
-    awind.post_advance_work()
+    awind.post_advance()
     comm.Barrier()
 
 
