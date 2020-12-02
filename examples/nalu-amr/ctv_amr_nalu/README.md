@@ -6,8 +6,9 @@ for overset simulations.
 
 ## Files
 
-- [ctv_amr_nalu.py](./ctv_amr_nalu.py) -- Driver script demonstrating coupling Nalu-Wind
-  and AMR-Wind
+- [ctv.py](./ctv.py) Driver script for overset simulation using ExaWind simulation environment
+
+- [ctv_amr_nalu.py](./ctv_amr_nalu.py) -- Driver script demonstrating low-level API for coupling Nalu-Wind and AMR-Wind
   
 - [ctv-amr.inp](./ctv-amr.inp) -- Input file for AMR-Wind
 
@@ -30,5 +31,5 @@ mpiexec -np 1 /projects/hfm/shreyas/exawind/install/gcc/wind-utils/bin/abl_mesh 
 
 
 # Execute python script
-mpiexec -np 1 python ctv_amr_nalu.py
+mpiexec -np 1 python3 ctv.py
 ```
