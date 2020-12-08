@@ -72,15 +72,15 @@ realms:
 
     boundary_conditions:
 
-    # - periodic_boundary_condition: periodic1
-    #   target_name: [west, east]
-    #   periodic_user_data:
-    #     search_tolerance: 1.e-6
+    - periodic_boundary_condition: periodic1
+      target_name: [west, east]
+      periodic_user_data:
+        search_tolerance: 1.e-6
 
-    # - periodic_boundary_condition: periodic2
-    #   target_name: [south, north]
-    #   periodic_user_data:
-    #     search_tolerance: 1.e-6
+    - periodic_boundary_condition: periodic2
+      target_name: [south, north]
+      periodic_user_data:
+        search_tolerance: 1.e-6
 
     - symmetry_boundary_condition: top
       target_name: top
@@ -95,17 +95,17 @@ realms:
       overset_user_data:
         tioga_options:
           set_resolutions: yes
-          cell_resolution_multiplier: 0.1
-          node_resolution_multiplier: 0.1
+          cell_resolution_multiplier: 1.0
+          node_resolution_multiplier: 1.0
         mesh_group:
           - overset_name: interior
             mesh_parts:
               - fluid
-            ovset_parts:
-              - east
-              - west
-              - north
-              - south
+    #        ovset_parts:
+    #          - east
+    #          - west
+    #          - north
+    #          - south
               # - top
               # - terrain
 
