@@ -1,0 +1,11 @@
+
+nalu_abl_mesh:
+  output_db: ctv_mesh_inner.exo
+  ioss_8bit_ints: false
+  spec_type: bounding_box
+
+  vertices:
+    - [0.5, 0.5, 0.0]
+    - [1.5, 1.5, 1.0]
+
+  mesh_dimensions: [ 32, 32, 32 ]
